@@ -1,6 +1,6 @@
 {
   "name": "simplicity",
-  "version": "1.0",
+  "version": "1.0.0",
   "homepage": "https://github.com/nmrugg/cinch",
   "description": "A server that let you handle GET and POST HTTP requests with simplicity.",
   "author": {
@@ -15,5 +15,5 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/nmrugg/simplicity.git"
-  },
+  }
 }
