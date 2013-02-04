@@ -11,7 +11,7 @@ How to Install
 Example
 ---
 
-    var server = require("simplicity.js");
+    var server = require("simplicity");
     
     server.start_server(function (data, response)
     {
