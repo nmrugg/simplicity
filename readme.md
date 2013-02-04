@@ -22,7 +22,7 @@ Usage
 ---
 
     // First, load Simplicity.
-    var server = require("simplicity.js");
+    var server = require("simplicity");
     
 This will create an object with two function: <code>start_server()</code> and <code>htmlentities()</code>.
 
