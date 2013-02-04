@@ -46,6 +46,20 @@ process.on("uncaughtException", function(e)
     process.exit(e.errno);
 });
 
+/// Fake fs.exists and fs.existsSync for Node.js 0.6.x and below.
+if (!fs.exists) {
+    fs.exists = function (file, callback)
+    {
+        path.exists(file, callback);
+    };
+}
+if (!fs.existsSync) {
+    fs.existsSync = function (file)
+    {
+        return path.existsSync(file);
+    };
+}
+
 exports.htmlentities = (function ()
 {
     var entities = {
@@ -321,7 +335,7 @@ exports.start_server = function (config, callback)
                 }
             }
             
-            if (path.existsSync(filename)) {
+            if (fs.existsSync(filename)) {
                 stat = fs.statSync(filename);
                 if (stat.isDirectory()) {
                     if (config.redirect_on_errors) {
