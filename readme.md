@@ -26,7 +26,7 @@ Usage
     
 This will create an object with two function: <code>start_server()</code> and <code>htmlentities()</code>.
 
-start_server([config], callback)
+start_server([config,] callback)
 ---
 
 <code>config</code> is an optional object describing how Simplicity should work.
@@ -74,3 +74,6 @@ For example:
     
     server.htmlentities("<script>"); // Returns: "&lt;script&gt;
 
+License
+---
+<a href="http://nate.mit-license.org/">MIT</a>
