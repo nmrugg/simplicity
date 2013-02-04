@@ -65,7 +65,7 @@ start_server([config,] callback)
         write_head: function (code[, headers])    // Write HTTP headers back to the client
     }
 
-<code>htmlentities(string)</code>
+htmlentities(string)
 ---
 
 Encode a string so that it will display as text not HTML.
