@@ -1,0 +1,19 @@
+{
+  "name": "simplicity",
+  "version": "1.0",
+  "homepage": "https://github.com/nmrugg/cinch",
+  "description": "A server that let you handle GET and POST HTTP requests with simplicity.",
+  "author": {
+    "name": "Nathan Rugg",
+    "email": "nmrugg@gmail.com",
+    "url": "https://github.com/nmrugg"
+  },
+  "main": "./simplicity.js",
+  "dependencies": {
+    "mime": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nmrugg/simplicity.git"
+  },
+}
