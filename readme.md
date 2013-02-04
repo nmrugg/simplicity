@@ -72,7 +72,7 @@ Encode a string so that it will display as text not HTML.
 
 For example:
     
-    server.htmlentities("<script>"); // Returns: "&lt;script&gt;
+    server.htmlentities("<script>"); // Returns: "&lt;script&gt;"
 
 License
 ---
