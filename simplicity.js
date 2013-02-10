@@ -274,11 +274,22 @@ exports.start_server = function (config, callback)
         function request_page()
         {
             var basedir,
+                base_header,
+                default_header,
                 dirs,
                 files,
                 i,
                 stat,
                 timeout;
+            
+            base_header = {
+                Server: "Simplicity",
+                Date:   (new Date()).toGMTString(),
+                Connection: "Close",
+                "X-UA-Compatible": "IE=Edge,chrome=1"
+            };
+            
+            default_header = JSON.parse(JSON.stringify(base_header));
             
             function send_to_callback()
             {
@@ -354,20 +365,32 @@ exports.start_server = function (config, callback)
                     if (config.redirect_on_errors) {
                         send_to_callback();
                     } else {
-                        response.writeHead(404, {"Content-Type": "text/html"});
+                        default_header["Content-Type"] = "text/html";
+                        response.writeHead(404, default_header);
                         response.write("File not found");
                         response.end();
                     }
                 } else {
                     /// Write out files.
                     /// First, check the headers for a cached version.
-                    ///NOTE: When the user clicks the refresh button, the cache-control header is appended with a value of "max-age=0".
-                    ///      It really should use the max-age value to determine if the cache is really invalidated.
-                    if (request.headers["if-modified-since"] && request.headers["cache-control"] !== "max-age=0" && Date.parse(request.headers["if-modified-since"]) >= Date.parse(stat.mtime)) {
-                        response.writeHead(304, {});
+                    ///NOTE: When the user clicks the refresh button, the cache-control header is appended with a value of "max-age=0" (in Firefox).
+                    ///      Chrome adds sets max-age to 0 whenever the use presses enter (at least).
+                    ///      If Ctrl+F5 is pressed, it will set cache-control to "no-cache".
+                    if (request.headers["if-modified-since"] && (request.headers["cache-control"] !== "max-age=0" && request.headers["cache-control"] !== "no-cache") && Date.parse(request.headers["if-modified-since"]) >= Date.parse(stat.mtime)) {
+                        response.writeHead(304, default_header);
                     } else {
+                        default_header["Content-Type"]   = mime.lookup(filename);
+                        default_header["Last-Modified"]  = stat.mtime.toGMTString();
+                        default_header["Content-Length"] = stat.size;
+                        ///NOTE: Without "max-age=0", Chrome will not revalidate the files with if-modified-since.
+                        default_header["Cache-Control"]  = (config.protect ? "no-cache, no-store, private, max-age=0" : "must-revalidate, public, max-age=0");
+                        
+                        if (config.protect) {
+                            default_header["Expires"] = base_header.Date;
+                        }
+                        
+                        response.writeHead(200, default_header);
                         ///TODO: Make reading the files async.
-                        response.writeHead(200, {"Content-Type": mime.lookup(filename), "Last-Modified": stat.mtime});
                         response.write(fs.readFileSync(filename));
                     }
                     response.end();
@@ -376,7 +399,8 @@ exports.start_server = function (config, callback)
                 if (config.redirect_on_errors) {
                     send_to_callback();
                 } else {
-                    response.writeHead(404, {"Content-Type": "text/html"});
+                    default_header["Content-Type"] = "text/html";
+                    response.writeHead(404, default_header);
                     response.write("File not found");
                     response.end();
                 }
