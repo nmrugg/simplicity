@@ -261,15 +261,15 @@ exports.start_server = function (config, callback)
         
         uri = qs.unescape(url_parsed.pathname);
         
-        /// Make sure the URI is valid.
-        if (uri.substr(0, 4) === "/../" || uri[0] !== "/") {
+        filename = path.join(config.root_path, uri);
+        
+        /// Make sure the URI is valid and within the root path.
+        if (uri.indexOf("/../") !== -1 || uri[0] !== "/" || path.relative(config.root_path, filename).substr(0, 3) === "../") {
             response.writeHead(404, {"Content-Type": "text/plain"});
             response.write("404 Not Found\n");
             response.end();
             return;
         }
-        
-        filename = path.join(config.root_path, uri);
         
         function request_page()
         {
