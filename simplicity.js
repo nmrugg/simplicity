@@ -282,7 +282,9 @@ exports.start_server = function (config, callback)
             
             function send_to_callback()
             {
-                var header_written;
+                var header_written,
+                    is_ending,
+                    written_yet;
                 
                 /// Create a timeout to prevent a connection from hanging too long.
                 timeout = setTimeout(function ()
@@ -293,6 +295,7 @@ exports.start_server = function (config, callback)
                 callback({uri: uri, filename: filename, headers: request.headers, get: get_data, post: post_data, cookies: cookies}, {
                     end: function (data, encoding)
                     {
+                        is_ending = true;
                         if (data) {
                             this.write(data, encoding)
                         }
@@ -308,14 +311,24 @@ exports.start_server = function (config, callback)
                     },
                     write: function (data, encoding)
                     {
-                        /// If no header has been sent yet, send as standard HTML.
-                        if (!header_written) {
-                            this.write_head(200, {"Content-Type": "text/html"});
-                        }
+                        /// Convert the data into something writable.
                         if (typeof data !== "string" && !Buffer.isBuffer(data)) {
                             data = JSON.stringify(data);
                         }
+                        
+                        /// If no header has been sent yet, send as standard HTML.
+                        if (!header_written) {
+                            default_header["Content-Type"] = "text/html";
+                            if (is_ending && !written_yet) {
+                                default_header["Content-Length"] = String(data.length);
+                            }
+                            
+                            this.write_head(200, default_header);
+                        }
+                        
                         response.write(data, encoding);
+                        
+                        written_yet = true;
                     },
                     write_head: function (code, headers)
                     {
