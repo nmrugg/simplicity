@@ -181,6 +181,7 @@ exports.htmlentities = (function ()
 /**
  * @param config   (object) An object describing the configuration options (everything is optional)
  *                          {
+ *                              expires_in:         (number)  How long the "expires" header should be set for (in seconds)
  *                              password:           (string)  The password used to authenticate the user
  *                              port:               (number)  The port number to listen to                                          (default: 8888)
  *                              post_limit          (number)  How many bytes to receive of POST data before dropping the connection (default: 2097152 (2mb))
@@ -383,9 +384,11 @@ exports.start_server = function (config, callback)
                         default_header["Last-Modified"]  = stat.mtime.toGMTString();
                         default_header["Content-Length"] = stat.size;
                         ///NOTE: Without "max-age=0", Chrome will not revalidate the files with if-modified-since.
-                        default_header["Cache-Control"]  = (config.protect ? "no-cache, no-store, private, max-age=0" : "must-revalidate, public, max-age=0");
+                        default_header["Cache-Control"]  = (config.protect ? "no-cache, no-store, private, max-age=0" : "must-revalidate, public, max-age=" + (config.expires_in || 0));
                         
                         if (config.protect) {
+                            default_header["Expires"] = (new Date(Date.now() + (config.expires_in * 1000))).toGMTString();
+                        } else if (config.expires_in) {
                             default_header["Expires"] = base_header.Date;
                         }
                         
